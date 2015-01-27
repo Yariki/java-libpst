@@ -51,6 +51,7 @@ public class PSTFile {
 	public static final int PST_TYPE_ANSI = 14;
 	protected static final int PST_TYPE_ANSI_2 = 15;
 	public static final int PST_TYPE_UNICODE = 23;
+        public static final int PST_TYPE_UNICODE_2013 = 36;
 	
 	// Known GUIDs
 	// Local IDs first
@@ -141,6 +142,9 @@ public class PSTFile {
 			if (fileTypeBytes[0] == PSTFile.PST_TYPE_ANSI_2) {
 				fileTypeBytes[0] = PSTFile.PST_TYPE_ANSI;
 			}
+                        if(fileTypeBytes[0] == PSTFile.PST_TYPE_UNICODE_2013){
+                            fileTypeBytes[0] = PSTFile.PST_TYPE_UNICODE;
+                        }
 			if (fileTypeBytes[0] != PSTFile.PST_TYPE_ANSI &&
 				fileTypeBytes[0] != PSTFile.PST_TYPE_UNICODE)
 			{
