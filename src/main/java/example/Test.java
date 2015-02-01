@@ -1,11 +1,15 @@
 package example;
-import com.pff.*;
-import java.util.*;
+import com.pff.PSTException;
+import com.pff.PSTFile;
+import com.pff.PSTFolder;
+import com.pff.PSTMessage;
+import java.util.Vector;
 
 public class Test {
 	public static void main(String[] args)
 	{
-		new Test(args[0]);
+            final String filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ya@gmail.com.pst";
+            new Test(filename);
 	}
 
 	public Test(String filename) {
@@ -43,7 +47,7 @@ public class Test {
 			PSTMessage email = (PSTMessage)folder.getNextChild();
 			while (email != null) {
 				printDepth();
-				System.out.println("Email: "+ email.getDescriptorNodeId() + " - " + email.getSubject());
+				System.out.println("Email: "+ email.getDescriptorNodeId() + " - " + email.getSubject() + " - Topic: "+ email.getConversationTopic() +" - Index: "+ email.getConversationIndex() + " - Tracking: " + email.getConversationIndexTracking() );
 				email = (PSTMessage)folder.getNextChild();
 			}
 			depth--;

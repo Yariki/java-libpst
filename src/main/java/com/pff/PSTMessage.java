@@ -178,6 +178,21 @@ public class PSTMessage extends PSTObject {
 		return this.getStringItem(0x0070);
 	}
 
+        /**
+	 * Conversation index
+	 * Represent the index of message in conversation thread
+	 * @return empty string if not found
+	 */
+        public byte[] getConversationIndex() {
+            return this.getBinaryItem(0x0071); // this.getStringItem(0x0071);
+        }
+        
+        public PSTConversationIndexData getConversationIndexData(){
+            byte[] data = getConversationIndex();
+            return new PSTConversationIndexData(data);
+        }
+        
+        
 	/**
 	 * Received by address type
 	 * Known values are SMTP, EX (Exchange) and UNKNOWN
@@ -740,7 +755,13 @@ public class PSTMessage extends PSTObject {
 	public boolean getAttrReadonly() {
 		return (this.getIntItem(0x10f6) != 0);
 	}
-
+        
+        /**
+	 * PidTagConversationIndexTracking
+	 */
+        public boolean getConversationIndexTracking(){
+            return this.getBooleanItem(0x3016);
+        }
 	
 	private PSTTable7C recipientTable = null;
 	/**

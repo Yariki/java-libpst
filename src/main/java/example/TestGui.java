@@ -4,19 +4,58 @@
 
 package example;
 
-import java.awt.*;
-import java.awt.event.*;
-
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.AbstractTableModel;
+import com.pff.PSTActivity;
+import com.pff.PSTAttachment;
+import com.pff.PSTContact;
+import com.pff.PSTConversationIndexData;
+import com.pff.PSTException;
+import com.pff.PSTFile;
+import com.pff.PSTFolder;
+import com.pff.PSTMessage;
+import com.pff.PSTMessageStore;
+import com.pff.PSTRss;
+import com.pff.PSTTask;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.UUID;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import java.io.*;
-import javax.swing.tree.*;
-
-import com.pff.*;
-
-import java.util.*;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
  * @author toweruser
@@ -30,6 +69,15 @@ public class TestGui implements ActionListener {
 	private JPanel attachPanel;
 	private JLabel attachLabel;
 	private JTextField attachText;
+        
+        private JPanel converasationIndexPanel;
+        private JLabel conversationIndexLabel;
+        private JTextField conversationIndexText;
+        
+        private JPanel trackingIndexPanel;
+        private JLabel trackingIndexLabel;
+        private JCheckBox trackingIndexText;
+        
 	private PSTMessage selectedMessage;
 	private JFrame f;
 	
@@ -40,124 +88,12 @@ public class TestGui implements ActionListener {
 		
 		// attempt to open the pst file
 		try {
-			/*
-			JFileChooser chooser = new JFileChooser();
-			if (chooser.showOpenDialog(f) == JFileChooser.APPROVE_OPTION) {
-			} else {
-				System.exit(0);
-			}
-
-			String filename = chooser.getSelectedFile().getCanonicalPath();
-			 */
-			String filename = "Outlook-new.pst";
-			filename = "G:\\From old Tower\\pff\\java\\Old Email.pst";
-			//filename = "RichardJohnson@sumac.uk.com - exchange.ost";
-			//String filename = "Outlook 32bit.pst";
-			//String russian = "Узеи́р Абду́л-Гусе́йн оглы́ Гаджибе́ков (азерб. Üzeyir bəy Əbdülhüseyn oğlu Hacıbəyov; 18 сентября 1885, Агджабеди, Шушинский уезд, Елизаветпольская губерния, Российская империя — 23 ноября 1948, Баку, Азербайджанская ССР, СССР) — азербайджанский композитор, дирижёр, публицист, фельетонист, драматург и педагог, народный артист СССР (1938), дважды лауреат Сталинских премий (1941, 1946). Действительный член АН Азербайджана (1945), профессор (1940), ректор Азербайджанской государственной ";
-
-			//System.out.println(java.nio.charset.Charset.availableCharsets());
-
-			//byte[] russianBytes = russian.getBytes("UTF-8");
-			//PSTObject.printHexFormatted(russianBytes, true);
-
-			//String filename = "Outlook 32bit.pst";
-			//filename = "RichardJohnson@sumac.uk.com - exchange.ost";
+			
+			String filename = "iyariki.ya@hotmail.com.ost";
+			filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ya@hotmail.com.ost";
+			
 			pstFile = new PSTFile(filename);
-			//pstFile = new PSTFile("RichardJohnson@sumac.uk.com - exchange.ost");
-
-
-			//PSTFolder folder = (PSTFolder)PSTObject.detectAndLoadPSTObject(pstFile, 32898);
-			//System.out.println(folder.getEmailCount());
-			//System.exit(0);
-
-
-			//"г ь ы";
-			//System.out.println(java.nio.charset.Charset.availableCharsets().keySet());
-			//PSTMessage msg = (PSTMessage)PSTObject.detectAndLoadPSTObject(pstFile, 2097604);
-			//System.out.println(msg);
-
-			//PSTObject.printHexFormatted("г ь ы".getBytes("koi8-r"), true);
-			//System.exit(0);
-			//PSTMessage msg = (PSTMessage)PSTObject.detectAndLoadPSTObject(pstFile, 2097668);
-			//System.out.println(msg.getRTFBody());
-			//System.exit(0);
-
-			//PSTAppointment msg = (PSTAppointment)PSTObject.detectAndLoadPSTObject(pstFile, 2097252);
-			////System.out.println(msg.getStartTime());
-			//System.exit(0);
-
-			//int[] emails = {
-				//2098180
-				/*
-				2097348,
-				2097380,
-				2097412,
-				2097444,
-				2097476,
-				2097508,
-				2097540,
-				2097572
-				 *
-				 */
-			//};
-
-			/*
-
-			RandomAccessFile tmpIn = new RandomAccessFile("test - httpdocs.tar.gz", "r");
-			PSTMessage msg = (PSTMessage)PSTObject.detectAndLoadPSTObject(pstFile, emails[0]);
-			PSTAttachmentInputStream attachmentStream = msg.getAttachment(0).getFileInputStream();
-
-			byte[] tmp = new byte[1024];
-			byte[] tmp2 = new byte[1024];
-
-			for (int y = 1; y < 2000; y++) {
-				tmpIn.seek(760*y-50);
-				tmpIn.read(tmp);
-
-				attachmentStream.seek(760*y-50);
-				attachmentStream.read(tmp2);
-
-				for (int x = 0; x< tmp2.length; x++) {
-					if (tmp[x] != tmp2[x]) {
-
-
-						PSTObject.printHexFormatted(tmp, true);
-						PSTObject.printHexFormatted(tmp2, true);
-
-						System.out.println(y);
-						System.out.println("Error");
-						System.exit(0);
-					}
-				}
-				System.out.println("Worked");
-			}
-			 *
-			 */
-
-			/*
-			for (int x = 0; x < emails.length; x++) {
-				PSTMessage msg = (PSTMessage)PSTObject.detectAndLoadPSTObject(pstFile, emails[x]);
-				PSTAttachment attach = msg.getAttachment(0);
-				//System.out.println(attach);
-				InputStream attachmentStream = msg.getAttachment(0).getFileInputStream();
-				FileOutputStream out = new FileOutputStream("test - "+attach.getLongFilename());
-
-				int bufferSize = 8176;
-
-				byte[] buffer = new byte[bufferSize];
-				int count = attachmentStream.read(buffer, 0, 8176);
-				while (count == bufferSize) {
-					out.write(buffer);
-					count = attachmentStream.read(buffer, 0, 8176);
-				}
-				byte[] endBuffer = new byte[count];
-				System.arraycopy(buffer, 0, endBuffer, 0, count);
-				out.write(endBuffer);
-				out.close();
-			}
-			 *
-			 */
-			//System.exit(0);
+			
 
 		} catch (Exception err) {
 			err.printStackTrace();
@@ -240,7 +176,26 @@ public class TestGui implements ActionListener {
 						emailText.setText(rss.toString());
 					} else if (selectedMessage != null) {
 //						System.out.println(selectedMessage.getMessageClass());
-						emailText.setText(selectedMessage.getBody());
+                                                String body = selectedMessage.getBody();
+                                                if(body.isEmpty()){
+                                                    body = selectedMessage.getBodyHTML();
+                                                }
+						emailText.setText(body);
+                                                trackingIndexText.setSelected(selectedMessage.getConversationIndexTracking());
+                                                PSTConversationIndexData indexData = selectedMessage.getConversationIndexData();
+                                                UUID id = null;
+                                                try {
+                                                    id = indexData.getConversationUUID(selectedMessage.getConversationTopic(),selectedMessage.getConversationIndexTracking());
+                                                } catch (NoSuchAlgorithmException ex) {
+                                                    Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
+                                                if(id != null){
+                                                    conversationIndexText.setText(id.toString());
+                                                }else{
+                                                    conversationIndexText.setText("");
+                                                }
+                                                
+                                                
 						//System.out.println(selectedMessage);
 						//emailText.setText(selectedMessage.toString());
 						//emailText.setText(selectedMessage.toString());
@@ -265,15 +220,38 @@ public class TestGui implements ActionListener {
         emailText.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         //emailText.setFont(new Font("Arial Unicode MS", Font.PLAIN, 12));
         
-		emailPanel = new JPanel(new BorderLayout());
-		attachPanel = new JPanel(new BorderLayout());
-		attachLabel = new JLabel("Attachments:");
-		attachText = new JTextField("");
-		attachText.setEditable(false);
-		attachPanel.add(attachLabel, BorderLayout.WEST);
-		attachPanel.add(attachText, BorderLayout.CENTER);
-		emailPanel.add(attachPanel, BorderLayout.NORTH);
-		emailPanel.add(emailText, BorderLayout.CENTER);
+        JPanel stack = new JPanel();
+        stack.setLayout(new BoxLayout(stack,BoxLayout.PAGE_AXIS));
+
+        emailPanel = new JPanel(new BorderLayout());
+        attachPanel = new JPanel(new BorderLayout());
+        attachLabel = new JLabel("Attachments:");
+        attachText = new JTextField("");
+        attachText.setEditable(false);
+        attachPanel.add(attachLabel, BorderLayout.WEST);
+        attachPanel.add(attachText, BorderLayout.CENTER);
+        stack.add(attachPanel);
+        
+
+        converasationIndexPanel = new JPanel(new BorderLayout());
+        conversationIndexLabel = new JLabel("Conversation Index:");
+        conversationIndexText = new JTextField("");
+        conversationIndexText.setEditable(false);
+        converasationIndexPanel.add(conversationIndexLabel,BorderLayout.WEST);
+        converasationIndexPanel.add(conversationIndexText,BorderLayout.CENTER);
+        stack.add(converasationIndexPanel);
+
+        trackingIndexPanel = new JPanel(new BorderLayout());
+        trackingIndexLabel = new JLabel("Index Tracking:");
+        trackingIndexText = new JCheckBox();
+        trackingIndexPanel.add(trackingIndexLabel,BorderLayout.WEST);
+        trackingIndexPanel.add(trackingIndexText,BorderLayout.CENTER);
+        stack.add(trackingIndexPanel);
+        
+        
+        
+        emailPanel.add(stack, BorderLayout.NORTH);
+        emailPanel.add(emailText, BorderLayout.CENTER);
 
         JSplitPane emailSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, emailTablePanel, new JScrollPane(emailPanel));
         emailSplitPane.setOneTouchExpandable(true);
