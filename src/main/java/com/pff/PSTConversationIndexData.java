@@ -18,6 +18,7 @@ package com.pff;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -27,7 +28,6 @@ import java.util.UUID;
 public class PSTConversationIndexData {
     
     private static final int RESERVED_INDEX = 0;
-    private static final int FILETIME_LENGHT = 5;
     private static final int CONVERSSATION_INDEX_OFFSET = 6;
     private static final int CONVERSATION_INDEX_GUID_LENGHT = 16;
     private static final int CONVERSATION_INDEX_LEGHT = CONVERSSATION_INDEX_OFFSET + CONVERSATION_INDEX_GUID_LENGHT;
@@ -79,6 +79,14 @@ public class PSTConversationIndexData {
     public byte[] getConversationIndexUuidArray(){
         byte[] uuidArray = Arrays.copyOfRange(data,CONVERSSATION_INDEX_OFFSET,CONVERSATION_INDEX_GUID_LENGHT);
         return uuidArray;
+    }
+    
+    public Date getConversationFileTime(){
+        Date date = null;
+        byte[] filetimeArr = Arrays.copyOfRange(data, 1, CONVERSSATION_INDEX_OFFSET);
+        long datetime =  PSTObject.convertBigEndianBytesToLong(filetimeArr, 0, filetimeArr.length);
+        date = new Date(datetime);
+        return date;
     }
     
     public static byte[] stringToBytesASCII(String str) {

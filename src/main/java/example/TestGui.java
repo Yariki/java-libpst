@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
@@ -77,6 +78,13 @@ public class TestGui implements ActionListener {
         private JPanel trackingIndexPanel;
         private JLabel trackingIndexLabel;
         private JCheckBox trackingIndexText;
+        
+        private JPanel datePanel;
+        private JLabel dateLabel;
+        private JTextField dateField;
+        
+        
+        
         
 	private PSTMessage selectedMessage;
 	private JFrame f;
@@ -194,6 +202,12 @@ public class TestGui implements ActionListener {
                                                 }else{
                                                     conversationIndexText.setText("");
                                                 }
+                                                Date date = indexData.getConversationFileTime();
+                                                if(date != null){
+                                                    dateField.setText(date.toString());
+                                                }else{
+                                                    dateField.setText("");
+                                                }
                                                 
                                                 
 						//System.out.println(selectedMessage);
@@ -248,6 +262,13 @@ public class TestGui implements ActionListener {
         trackingIndexPanel.add(trackingIndexText,BorderLayout.CENTER);
         stack.add(trackingIndexPanel);
         
+        datePanel = new JPanel(new BorderLayout());
+        dateLabel = new JLabel("File Time:");
+        dateField = new JTextField();
+        dateField.setEditable(false);
+        datePanel.add(dateLabel,BorderLayout.WEST);
+        datePanel.add(dateField,BorderLayout.CENTER);
+        stack.add(datePanel);
         
         
         emailPanel.add(stack, BorderLayout.NORTH);
