@@ -15,11 +15,22 @@
  */
 package com.pff;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.Buffer;
+import sun.misc.BASE64Decoder;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
  *
@@ -37,6 +48,7 @@ public class PSTConversationIndexData {
     
     public PSTConversationIndexData(byte[] data) {
         this.data = data;
+        init(this.data);
     }
     
     public byte getReservedValue(){
@@ -46,7 +58,8 @@ public class PSTConversationIndexData {
     public UUID  getConversationUUID(String conversationTopic, boolean conversationIndexTracking) throws NoSuchAlgorithmException{
         boolean useTopic = true;
         UUID uuId = null;
-        if(conversationIndexTracking && data != null && data.length >= CONVERSATION_INDEX_LEGHT && getReservedValue() == 0x01){
+        //TODO conversationIndexTracking && 
+        if( data != null && data.length >= CONVERSATION_INDEX_LEGHT && getReservedValue() == 0x01){
             byte[] uuidArray = getConversationIndexUuidArray();
             uuId =  UUID.nameUUIDFromBytes(uuidArray);
             useTopic = false;
@@ -61,7 +74,7 @@ public class PSTConversationIndexData {
             
             if(cchHash < CCH_MAX){
                 int ich;
-                for(ich = 0; ich <= cchHash;ich++){
+                for(ich = 0; ich < cchHash;ich++){
                     wzBuffer[ich] = topicBytes[ich];
                 }
                 try {
@@ -77,17 +90,40 @@ public class PSTConversationIndexData {
     }
     
     public byte[] getConversationIndexUuidArray(){
-        byte[] uuidArray = Arrays.copyOfRange(data,CONVERSSATION_INDEX_OFFSET,CONVERSATION_INDEX_GUID_LENGHT);
+        byte[] uuidArray = Arrays.copyOfRange(data,CONVERSSATION_INDEX_OFFSET,
+                CONVERSATION_INDEX_GUID_LENGHT);
         return uuidArray;
     }
     
     public Date getConversationFileTime(){
         Date date = null;
-        byte[] filetimeArr = Arrays.copyOfRange(data, 1, CONVERSSATION_INDEX_OFFSET);
-        long datetime =  PSTObject.convertBigEndianBytesToLong(filetimeArr, 0, filetimeArr.length);
-        date = new Date(datetime);
+        byte[] filetimeArr = Arrays.copyOfRange(data, 0, CONVERSSATION_INDEX_OFFSET);
+        String hex_str = javax.xml.bind.DatatypeConverter.printHexBinary(filetimeArr) + "0000";
+        long mil = Long.parseLong(hex_str, 16);
+        date = convertFILETIMEToDate(mil);
         return date;
     }
+    
+    
+    private static Date convertFILETIMEToDate(long filetime){
+          // Filetime Epoch is JAN 01 1601
+          // java date Epoch is January 1, 1970
+          // so take the number and subtract java Epoch:
+          long javaTime = filetime - 0x19db1ded53e8000L;
+
+          // convert UNITS from (100 nano-seconds) to (milliseconds)
+          javaTime /= 10000;
+
+          // Date(long date)
+          // Allocates a Date object and initializes it to represent 
+          // the specified number of milliseconds since the standard base 
+          // time known as "the epoch", namely January 1, 1970, 00:00:00 GMT.
+          Date theDate = new Date(javaTime);
+
+
+          return theDate;
+     }
+    
     
     public static byte[] stringToBytesASCII(String str) {
 
@@ -109,5 +145,31 @@ public class PSTConversationIndexData {
         }
         return b;
     }
+    
+    public String getHexString(){
+        if(data == null || data.length == 0){
+            return "";
+        }
+        BASE64Decoder decoder = new BASE64Decoder();
+        String hex_string = javax.xml.bind.DatatypeConverter.printHexBinary(data);
+        return hex_string;
+    }
+    
+    
+    private void init(byte[] buffer){
+        if(buffer == null || buffer.length == 0){
+            return;
+        }
+        
+        BASE64Decoder decoder = new BASE64Decoder();
+        String hex_string = javax.xml.bind.DatatypeConverter.printHexBinary(buffer);
+        byte[] filetime_data = Arrays.copyOfRange(buffer, 0, 6);
+        byte[] uuidArray = Arrays.copyOfRange(buffer,CONVERSSATION_INDEX_OFFSET,
+                CONVERSATION_INDEX_GUID_LENGHT);
+        
+        
+        
+    }
+    
     
 }
