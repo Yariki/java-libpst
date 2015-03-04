@@ -192,6 +192,15 @@ public class PSTMessage extends PSTObject {
             return new PSTConversationIndexData(data);
         }
         
+        public String getEntryId(){
+            byte[] buffer = this.getBinaryItem(0x0ff9);
+            if(buffer == null){
+                return "";
+            }
+            String temp = javax.xml.bind.DatatypeConverter.printHexBinary(buffer);
+            return temp;
+        }
+        
         
 	/**
 	 * Received by address type

@@ -5,6 +5,7 @@
 package example;
 
 import com.pff.PSTActivity;
+import com.pff.PSTAppointment;
 import com.pff.PSTAttachment;
 import com.pff.PSTContact;
 import com.pff.PSTConversationIndexData;
@@ -13,6 +14,7 @@ import com.pff.PSTFile;
 import com.pff.PSTFolder;
 import com.pff.PSTMessage;
 import com.pff.PSTMessageStore;
+import com.pff.PSTRecipient;
 import com.pff.PSTRss;
 import com.pff.PSTTask;
 import java.awt.BorderLayout;
@@ -79,6 +81,15 @@ public class TestGui implements ActionListener {
         private JLabel trackingIndexLabel;
         private JCheckBox trackingIndexText;
         
+        private JPanel hexStringPanel;
+        private JLabel hexStringLabel;
+        private JTextField hexStringField;
+        
+        private JPanel indexPanel;
+        private JLabel indexLabel;
+        private JTextField indexField;
+        
+        
         private JPanel datePanel;
         private JLabel dateLabel;
         private JTextField dateField;
@@ -92,13 +103,13 @@ public class TestGui implements ActionListener {
 	public TestGui() throws PSTException, IOException {
 
 		// setup the basic window
-        f = new JFrame("PST Browser");
+        f = new JFrame("PST/OST Browser");
 		
 		// attempt to open the pst file
 		try {
 			
-			String filename = "iyariki.ya@hotmail.com.ost";
-			filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ya@hotmail.com.ost";
+			String filename = "iyariki.ost";
+			filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ost";
 			
 			pstFile = new PSTFile(filename);
 			
@@ -182,7 +193,10 @@ public class TestGui implements ActionListener {
 					} else if (selectedMessage instanceof PSTRss) {
 						PSTRss rss = (PSTRss)selectedMessage;
 						emailText.setText(rss.toString());
-					} else if (selectedMessage != null) {
+					} else if (selectedMessage instanceof PSTAppointment){
+                                           System.out.println("appointment");
+                                           
+                                        } else if (selectedMessage != null) {
 //						System.out.println(selectedMessage.getMessageClass());
                                                 String body = selectedMessage.getBody();
                                                 if(body.isEmpty()){
@@ -209,12 +223,62 @@ public class TestGui implements ActionListener {
                                                     dateField.setText("");
                                                 }
                                                 
+                                                hexStringField.setText(indexData.getHexString());
+                                                indexField.setText(selectedMessage.getEntryId()); // Integer.toString(indexData.getConversationIndex())
                                                 
-						//System.out.println(selectedMessage);
-						//emailText.setText(selectedMessage.toString());
-						//emailText.setText(selectedMessage.toString());
-//						PSTTask task = selectedMessage.toTask();
-//						emailText.setText(task.toString());
+//                                                String temp = selectedMessage.getSentRepresentingName();
+//                                                System.out.println("From Name: " + temp);
+//                                                
+//                                                temp = selectedMessage.getSentRepresentingEmailAddress();
+//                                                System.out.println("From Email: " + temp);
+//                                                
+//                                                temp = selectedMessage.getReceivedByName();
+//                                                System.out.println("To Name: " + temp);
+//                                                
+//                                                temp = selectedMessage.getReceivedByAddress();
+//                                                System.out.println("To Email: " + temp);
+//                                                
+//                                                temp = selectedMessage.getDisplayCC();
+//                                                System.out.println("CC Display: " + temp);
+//                                                
+//                                                
+//                                                temp = selectedMessage.getRcvdRepresentingName();
+//                                                System.out.println("Rcvd: " + temp);
+                                                
+                                                int count = 0;
+                                                try {
+                                                    count = selectedMessage.getNumberOfRecipients();
+                                                
+                                                    for(int i = 0; i < count; i++){
+                                                        PSTRecipient recipient = selectedMessage.getRecipient(i);
+                                                        if(recipient != null){
+                                                            System.out.println("Recipient: " + recipient.getDisplayName() + " Flags: " + Integer.toString(recipient.getRecipientType())
+                                                             + " Email: " + recipient.getEmailAddress() + "Email type: " + recipient.getEmailAddressType());
+                                                        }
+                                                    }
+                                                } catch (PSTException ex) {
+                                                    Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
+                                                } catch (IOException ex) {
+                                                    Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
+//                                                
+//                                                try{
+//                                                    int size = selectedMessage.getNumberOfAttachments();
+//                                                    for(int i= 0; i < size; i++){
+//                                                        PSTAttachment attachment = selectedMessage.getAttachment(i);
+//                                                        if(attachment != null){
+//                                                            System.out.println("Name: "  + attachment.getLongFilename()+ " Path: " + attachment.getLongPathname());
+//                                                        }
+//                                                    }
+//                                                }catch(Exception ex){
+//                                                    System.out.println(ex.getMessage());
+//                                                }
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
 					}
 					setAttachmentText();
 					
@@ -270,6 +334,21 @@ public class TestGui implements ActionListener {
         datePanel.add(dateField,BorderLayout.CENTER);
         stack.add(datePanel);
         
+        hexStringPanel = new JPanel(new BorderLayout());
+        hexStringLabel = new JLabel("HEX String:");
+        hexStringField = new JTextField();
+        hexStringField.setEditable(false);
+        hexStringPanel.add(hexStringLabel,BorderLayout.WEST);
+        hexStringPanel.add(hexStringField,BorderLayout.CENTER);
+        stack.add(hexStringPanel);
+        
+        indexPanel = new JPanel(new BorderLayout());
+        indexLabel = new JLabel("Conversation Index:");
+        indexField = new JTextField();
+        indexField.setEditable(false);
+        indexPanel.add(indexLabel,BorderLayout.WEST);
+        indexPanel.add(indexField,BorderLayout.CENTER);
+        stack.add(indexPanel);
         
         emailPanel.add(stack, BorderLayout.NORTH);
         emailPanel.add(emailText, BorderLayout.CENTER);
@@ -329,11 +408,22 @@ public class TestGui implements ActionListener {
 					if (filename.isEmpty()) {
 						filename = attach.getFilename();
 					}
+                                        String path = attach.getLongPathname();
+                                        if(path.isEmpty()){
+                                            path = attach.getPathname();
+                                        }
+                                        
 					if (!filename.isEmpty()) {
 						if (x != 0) {
 							s.append(", ");
 						}
 						s.append(filename);
+					}
+                                        if (!path.isEmpty()) {
+						if (x != 0) {
+							s.append(", ");
+						}
+						s.append(path);
 					}
 				}
 			}
