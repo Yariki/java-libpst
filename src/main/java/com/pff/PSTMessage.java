@@ -50,6 +50,8 @@ public class PSTMessage extends PSTObject {
 	public static final int IMPORTANCE_LOW = 0;
 	public static final int IMPORTANCE_NORMAL = 1;
 	public static final int IMPORTANCE_HIGH = 2;
+        
+        private PSTFolder parentFolder;
 
 	PSTMessage(PSTFile theFile, DescriptorIndexNode descriptorIndexNode)
 			throws PSTException, IOException
@@ -83,8 +85,15 @@ public class PSTMessage extends PSTObject {
 		return "";
 	}
 	
+	public void setFolder(PSTFolder folder){
+            parentFolder = folder;
+        }
+        
+        public PSTFolder getFolder(){
+            return parentFolder;
+        }
 	
-	
+        
 	/**
 	 * get the importance of the email
 	 * @return IMPORTANCE_NORMAL if unknown
@@ -184,23 +193,13 @@ public class PSTMessage extends PSTObject {
 	 * @return empty string if not found
 	 */
         public byte[] getConversationIndex() {
-            return this.getBinaryItem(0x0071); // this.getStringItem(0x0071);
+            return this.getBinaryItem(0x0071);
         }
         
         public PSTConversationIndexData getConversationIndexData(){
             byte[] data = getConversationIndex();
             return new PSTConversationIndexData(data);
         }
-        
-        public String getEntryId(){
-            byte[] buffer = this.getBinaryItem(0x0ff9);
-            if(buffer == null){
-                return "";
-            }
-            String temp = javax.xml.bind.DatatypeConverter.printHexBinary(buffer);
-            return temp;
-        }
-        
         
 	/**
 	 * Received by address type

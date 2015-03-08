@@ -62,7 +62,7 @@ class PSTTable {
 	
 	//private int[][]	rgbiAlloc = null;
 	//private byte[]	data = null;
-	private HashMap<Integer, PSTDescriptorItem> subNodeDescriptorItems = null;
+	protected HashMap<Integer, PSTDescriptorItem> subNodeDescriptorItems = null;
 	
 	protected String description = "";
 	

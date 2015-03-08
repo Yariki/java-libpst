@@ -64,11 +64,23 @@ public class PSTMessageStore extends PSTObject {
 								(PSTObject.convertLittleEndianBytesToLong(bytes, offset+4, offset+6) << 16) |
 								PSTObject.convertLittleEndianBytesToLong(bytes, offset+6, offset+8);
 			long leastSigBits = PSTObject.convertBigEndianBytesToLong(bytes, offset+8, offset+16);
+                        
 			return new UUID(mostSigBits, leastSigBits);
 		}
 		return null;
 	}
 	
+        public String getTagRecordKeyAsHex(){
+            int guidEntryType = 0x0ff9;
+		if (this.items.containsKey(guidEntryType)) {
+                    PSTTableBCItem item = this.items.get(guidEntryType);
+                    int offset = 0;
+                    byte[] bytes = item.data;
+                    return javax.xml.bind.DatatypeConverter.printHexBinary(bytes);
+		}
+                return "";
+        }
+        
 	/**
 	 * get the message store display name
 	 */

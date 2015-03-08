@@ -34,6 +34,7 @@
 package com.pff;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * DescriptorIndexNode is a leaf item from the Descriptor index b-tree
@@ -46,6 +47,9 @@ public class DescriptorIndexNode {
 	public long localDescriptorsOffsetIndexIdentifier;
 	public int parentDescriptorIndexIdentifier;
 	public int itemType;
+        public byte[] dataIdentifier;
+        public byte[] parentIdentifier;
+                
 
 	//PSTFile.PSTFileBlock dataBlock = null;
 	
@@ -58,12 +62,17 @@ public class DescriptorIndexNode {
 		// first 4 bytes
 		if (pstFileType == PSTFile.PST_TYPE_ANSI) {
 			descriptorIdentifier = (int)PSTObject.convertLittleEndianBytesToLong(data, 0, 4);
+                        dataIdentifier = Arrays.copyOfRange(data, 0, 4);
+                        parentIdentifier = Arrays.copyOfRange(data, 12,16);
+                        
 			dataOffsetIndexIdentifier = (int)PSTObject.convertLittleEndianBytesToLong(data, 4, 8);
 			localDescriptorsOffsetIndexIdentifier = (int)PSTObject.convertLittleEndianBytesToLong(data, 8, 12);
 			parentDescriptorIndexIdentifier = (int)PSTObject.convertLittleEndianBytesToLong(data, 12, 16);
 			//itemType = (int)PSTObject.convertLittleEndianBytesToLong(data, 28, 32);
 		} else {
 			descriptorIdentifier = (int)PSTObject.convertLittleEndianBytesToLong(data, 0, 4);
+                        dataIdentifier = Arrays.copyOfRange(data, 0, 4);
+                        parentIdentifier = Arrays.copyOfRange(data, 12,16);
 			dataOffsetIndexIdentifier = (int)PSTObject.convertLittleEndianBytesToLong(data, 8, 16);
 			localDescriptorsOffsetIndexIdentifier = (int)PSTObject.convertLittleEndianBytesToLong(data, 16, 24);
 			parentDescriptorIndexIdentifier = (int)PSTObject.convertLittleEndianBytesToLong(data, 24, 28);
@@ -82,6 +91,7 @@ public class DescriptorIndexNode {
 	 *
 	 */
 
+        
 	PSTNodeInputStream getNodeInputStream(PSTFile pstFile)
 			throws IOException, PSTException
 	{

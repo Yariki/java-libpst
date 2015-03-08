@@ -290,7 +290,9 @@ public class PSTFolder extends PSTObject {
 			DescriptorIndexNode childDescriptor = pstFile.getDescriptorIndexNode(emailRow.entryValueReference);
 			PSTObject child = PSTObject.detectAndLoadPSTObject(pstFile, childDescriptor);
 			currentEmailIndex++;
-
+                        if(child instanceof PSTMessage){
+                            ((PSTMessage)child).setFolder(this);
+                        }
 			return child;
 		} else if (this.fallbackEmailsTable != null) {
 			if (this.currentEmailIndex >= this.getContentCount() || this.currentEmailIndex >= this.fallbackEmailsTable.size())
@@ -302,6 +304,9 @@ public class PSTFolder extends PSTObject {
 			DescriptorIndexNode childDescriptor = fallbackEmailsTable.get(currentEmailIndex);
 			PSTObject child = PSTObject.detectAndLoadPSTObject(pstFile, childDescriptor);
 			currentEmailIndex++;
+                        if(child instanceof PSTMessage){
+                            ((PSTMessage)child).setFolder(this);
+                        }
 			return child;
 		}
 		return null;
