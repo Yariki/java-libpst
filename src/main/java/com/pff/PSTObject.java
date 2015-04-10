@@ -84,14 +84,14 @@ public class PSTObject {
         this.pstFile = theFile;
         this.descriptorIndexNode = descriptorIndexNode;
 
-		//descriptorIndexNode.readData(theFile);
+        //descriptorIndexNode.readData(theFile);
         //PSTTableBC table = new PSTTableBC(descriptorIndexNode.dataBlock.data, descriptorIndexNode.dataBlock.blockOffsets);
         PSTTableBC table = new PSTTableBC(new PSTNodeInputStream(pstFile, pstFile.getOffsetIndexNode(descriptorIndexNode.dataOffsetIndexIdentifier)));
         //System.out.println(table);
         this.items = table.getItems();
 
         if (descriptorIndexNode.localDescriptorsOffsetIndexIdentifier != 0) {
-			//PSTDescriptor descriptor = new PSTDescriptor(theFile, descriptorIndexNode.localDescriptorsOffsetIndexIdentifier);
+            //PSTDescriptor descriptor = new PSTDescriptor(theFile, descriptorIndexNode.localDescriptorsOffsetIndexIdentifier);
             //localDescriptorItems = descriptor.getChildren();
             this.localDescriptorItems = theFile.getPSTDescriptorItems(descriptorIndexNode.localDescriptorsOffsetIndexIdentifier);
         }
@@ -142,14 +142,30 @@ public class PSTObject {
         return descriptorIdentifier & 0x1F;
     }
 
-    public  String getEntryID() throws PSTException, IOException{
-            
-            String messagestorageId = pstFile.getMessageStore().getTagRecordKeyAsHex();
-            String nId = javax.xml.bind.DatatypeConverter.printHexBinary(this.getDescriptorNode().dataIdentifier);
-            String result = String.format("00000000%s%s", messagestorageId,nId);
-            return result;
-        }
+    public String getEntryID() throws PSTException, IOException {
+
+        String messagestorageId = pstFile.getMessageStore().getTagRecordKeyAsHex();
+        String nId = getNodeId();
+        String result = String.format("00000000%s%s", messagestorageId, nId);
+        return result;
+    }
     
+    public String getEntryIdOst() throws PSTException, IOException{
+        long item = getLongItem(0x67F4);
+        String messagestorageId = pstFile.getMessageStore().getTagRecordKeyAsHex();
+        String partEntryId = Long.toHexString(item); 
+        String result = String.format("00000000%s%s", messagestorageId, partEntryId);
+        return result;
+    }
+    
+    public String getObjectNodeId(){
+        return getNodeId();
+    }
+    
+    protected String getNodeId() {
+        return this.getDescriptorNode().dataIdentifier;
+    }
+
     protected int getIntItem(int identifier) {
         return getIntItem(identifier, 0);
     }
@@ -254,7 +270,7 @@ public class PSTObject {
                             PSTFile.getPropertyDescription(identifier, stringType), data != null ? data.toString() : "null");
                     return "";
                 }
-				//System.out.printf("PSTObject.getStringItem - item isn't a string: 0x%08X\n", identifier);
+                //System.out.printf("PSTObject.getStringItem - item isn't a string: 0x%08X\n", identifier);
                 //return "";
             }
 
@@ -804,7 +820,7 @@ public class PSTObject {
     }
 
     public static Calendar apptTimeToUTC(int minutes, PSTTimeZone tz) {
-		// Must convert minutes since 1/1/1601 in local time to UTC
+        // Must convert minutes since 1/1/1601 in local time to UTC
         // There's got to be a better way of doing this...
         // First get a UTC calendar object that contains _local time_
         Calendar cUTC = PSTObject.apptTimeToCalendar(minutes);
@@ -813,7 +829,7 @@ public class PSTObject {
             Calendar cLocal = Calendar.getInstance(tz.getSimpleTimeZone());
             cLocal.clear();
 
-			// Now transfer the local date/time from the UTC calendar object
+            // Now transfer the local date/time from the UTC calendar object
             // to the object that knows about the time zone...
             cLocal.set(cUTC.get(Calendar.YEAR),
                     cUTC.get(Calendar.MONTH),
@@ -822,7 +838,7 @@ public class PSTObject {
                     cUTC.get(Calendar.MINUTE),
                     cUTC.get(Calendar.SECOND));
 
-			// Get the true UTC from the local time calendar object.
+            // Get the true UTC from the local time calendar object.
             // Drop any milliseconds, they won't be printed anyway!
             long utcs = cLocal.getTimeInMillis() / 1000;
 

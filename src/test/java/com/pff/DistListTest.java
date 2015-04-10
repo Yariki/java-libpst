@@ -27,7 +27,7 @@ public class DistListTest {
             throws PSTException, IOException, URISyntaxException {
         URL dirUrl = ClassLoader.getSystemResource("dist-list.pst");
         PSTFile pstFile = new PSTFile(new File(dirUrl.toURI()));
-        PSTDistList obj = (PSTDistList)PSTObject.detectAndLoadPSTObject(pstFile, 2097188);
+        PSTDistList obj = (PSTDistList) PSTObject.detectAndLoadPSTObject(pstFile, 2097188);
         Object[] members = obj.getDistributionListMembers();
         Assert.assertEquals("Correct number of members", members.length, 3);
         int numberOfContacts = 0;
@@ -36,13 +36,13 @@ public class DistListTest {
         HashSet<String> displayNames = new HashSet<String>();
         for (Object member : members) {
             if (member instanceof PSTContact) {
-                PSTContact contact = (PSTContact)member;
+                PSTContact contact = (PSTContact) member;
                 Assert.assertEquals("Contact email address",
-                                    contact.getEmail1EmailAddress(),
-                                    "contact1@rjohnson.id.au");
+                        contact.getEmail1EmailAddress(),
+                        "contact1@rjohnson.id.au");
                 numberOfContacts++;
             } else {
-                PSTDistList.OneOffEntry entry = (PSTDistList.OneOffEntry)member;
+                PSTDistList.OneOffEntry entry = (PSTDistList.OneOffEntry) member;
                 emailAddresses.add(entry.getEmailAddress());
                 displayNames.add(entry.getDisplayName());
                 numberOfOneOffRecords++;
@@ -50,14 +50,14 @@ public class DistListTest {
         }
         Assert.assertEquals("Correct number of members", members.length, 3);
         Assert.assertEquals("Contains all display names",
-                            displayNames,
-                            new HashSet<String>(Arrays.asList(
-                                    new String[] {"dist name 2",
-                                                  "dist name 1"})));
+                displayNames,
+                new HashSet<String>(Arrays.asList(
+                                new String[]{"dist name 2",
+                                    "dist name 1"})));
         Assert.assertEquals("Contains all email addresses",
-                            emailAddresses,
-                            new HashSet<String>(Arrays.asList(
-                                    new String[] {"dist1@rjohnson.id.au",
-                                                  "dist2@rjohnson.id.au"})));
+                emailAddresses,
+                new HashSet<String>(Arrays.asList(
+                                new String[]{"dist1@rjohnson.id.au",
+                                    "dist2@rjohnson.id.au"})));
     }
 }

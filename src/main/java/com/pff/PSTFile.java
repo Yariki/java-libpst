@@ -56,7 +56,7 @@ public class PSTFile {
     public static final int PST_TYPE_UNICODE = 23;
     public static final int PST_TYPE_2013_UNICODE = 36;
 
-	// Known GUIDs
+    // Known GUIDs
     // Local IDs first
     public static final int PS_PUBLIC_STRINGS = 0;
     public static final int PSETID_Common = 1;
@@ -204,12 +204,12 @@ public class PSTFile {
         // get the descriptors if we have them
         HashMap<Integer, PSTDescriptorItem> localDescriptorItems = null;
         if (nameToIdMapDescriptorNode.localDescriptorsOffsetIndexIdentifier != 0) {
-			//PSTDescriptor descriptor = new PSTDescriptor(this, nameToIdMapDescriptorNode.localDescriptorsOffsetIndexIdentifier);
+            //PSTDescriptor descriptor = new PSTDescriptor(this, nameToIdMapDescriptorNode.localDescriptorsOffsetIndexIdentifier);
             //localDescriptorItems = descriptor.getChildren();
             localDescriptorItems = this.getPSTDescriptorItems(nameToIdMapDescriptorNode.localDescriptorsOffsetIndexIdentifier);
         }
 
-		// process the map
+        // process the map
         //PSTTableBC bcTable = new PSTTableBC(nameToIdMapDescriptorNode.dataBlock.data, nameToIdMapDescriptorNode.dataBlock.blockOffsets);
         OffsetIndexItem off = this.getOffsetIndexNode(nameToIdMapDescriptorNode.dataOffsetIndexIdentifier);
         PSTNodeInputStream nodein = new PSTNodeInputStream(this, off);
@@ -272,7 +272,7 @@ public class PSTFile {
                  System.out.printf("0x%08X:%04X, 0x%08X\n", dwPropertyId, guidIndex, wPropIdx);
                  /**/
             } else {
-				// else the identifier is a string
+                // else the identifier is a string
                 // dwPropertyId becomes thHke byte offset into the String stream in which the string name of the property is stored.
                 int len = (int) PSTObject.convertLittleEndianBytesToLong(
                         stringNameToIdByte,
@@ -573,7 +573,7 @@ public class PSTFile {
             }
         }
 
-		// okay, what we want to do is navigate the tree until you reach the bottom....
+        // okay, what we want to do is navigate the tree until you reach the bottom....
         // try and read the index b-tree
         byte[] temp = new byte[2];
         if (this.getPSTFileType() == PST_TYPE_ANSI) {
@@ -675,7 +675,7 @@ public class PSTFile {
                             long indexIdOfFirstChildNode = extractLEFileOffset(btreeStartOffset + (x * 12));
 
                             if (indexIdOfFirstChildNode == index) {
-								// we found it!!!! OMG
+                                // we found it!!!! OMG
                                 //System.out.println("item found as item #"+x);
                                 in.seek(btreeStartOffset + (x * 12));
 
@@ -705,7 +705,7 @@ public class PSTFile {
                             long indexIdOfFirstChildNode = extractLEFileOffset(btreeStartOffset + (x * 24));
 
                             if (indexIdOfFirstChildNode == index) {
-								// we found it!!!! OMG
+                                // we found it!!!! OMG
                                 //System.out.println("item found as item #"+x + " size (should be 24): "+itemSize);
                                 in.seek(btreeStartOffset + (x * 24));
 
@@ -880,7 +880,7 @@ public class PSTFile {
                 }
             } else {
                 for (long x = 0; x < numberOfItems; x++) {
-					// The 64-bit descriptor index b-tree leaf node item
+                    // The 64-bit descriptor index b-tree leaf node item
                     // give me the offset index please!
                     if (this.getPSTFileType() == PSTFile.PST_TYPE_ANSI) {
                         in.seek(btreeStartOffset + (x * 16));

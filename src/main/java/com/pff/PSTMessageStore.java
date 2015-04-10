@@ -1,34 +1,34 @@
 /**
  * Copyright 2010 Richard Johnson & Orin Eman
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  *
  * ---
  *
  * This file is part of java-libpst.
  *
- * java-libpst is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * java-libpst is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * java-libpst is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * java-libpst is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with java-libpst.  If not, see <http://www.gnu.org/licenses/>.
+ * along with java-libpst. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 package com.pff;
@@ -36,65 +36,71 @@ package com.pff;
 import java.io.*;
 import java.util.*;
 
-
 /**
- * Object that represents the message store.
- * Not much use other than to get the "name" of the PST file.
+ * Object that represents the message store. Not much use other than to get the
+ * "name" of the PST file.
+ *
  * @author Richard Johnson
  */
 public class PSTMessageStore extends PSTObject {
-	
-	PSTMessageStore(PSTFile theFile, DescriptorIndexNode descriptorIndexNode)
-		throws PSTException, IOException
-	{
-		super(theFile, descriptorIndexNode);
-	}
-	
-	/**
-	 * Get the tag record key, unique to this pst
-	 */
-	public UUID getTagRecordKeyAsUUID() {
-		// attempt to find in the table.
-		int guidEntryType = 0x0ff9;
-		if (this.items.containsKey(guidEntryType)) {
-			PSTTableBCItem item = this.items.get(guidEntryType);
-			int offset = 0;
-			byte[] bytes = item.data;
-			long mostSigBits = (PSTObject.convertLittleEndianBytesToLong(bytes, offset, offset+4) << 32) |
-								(PSTObject.convertLittleEndianBytesToLong(bytes, offset+4, offset+6) << 16) |
-								PSTObject.convertLittleEndianBytesToLong(bytes, offset+6, offset+8);
-			long leastSigBits = PSTObject.convertBigEndianBytesToLong(bytes, offset+8, offset+16);
-                        
-			return new UUID(mostSigBits, leastSigBits);
-		}
-		return null;
-	}
-	
-        public String getTagRecordKeyAsHex(){
-            int guidEntryType = 0x0ff9;
-		if (this.items.containsKey(guidEntryType)) {
-                    PSTTableBCItem item = this.items.get(guidEntryType);
-                    int offset = 0;
-                    byte[] bytes = item.data;
-                    return javax.xml.bind.DatatypeConverter.printHexBinary(bytes);
-		}
-                return "";
-        }
-        
-	/**
-	 * get the message store display name
-	 */
-	public String getDisplayName() {
-		// attempt to find in the table.
-		int displayNameEntryType = 0x3001;
-		if (this.items.containsKey(displayNameEntryType)) {
-			return this.getStringItem(displayNameEntryType);
-			//PSTTableBCItem item = (PSTTableBCItem)this.items.get(displayNameEntryType);
-			//return new String(item.getStringValue());
-		}
-		return "";
-	}
 
+    PSTMessageStore(PSTFile theFile, DescriptorIndexNode descriptorIndexNode)
+            throws PSTException, IOException {
+        super(theFile, descriptorIndexNode);
+    }
+
+    /**
+     * Get the tag record key, unique to this pst
+     */
+    public UUID getTagRecordKeyAsUUID() {
+        // attempt to find in the table.
+        int guidEntryType = 0x0ff9;
+        if (this.items.containsKey(guidEntryType)) {
+            PSTTableBCItem item = this.items.get(guidEntryType);
+            int offset = 0;
+            byte[] bytes = item.data;
+            long mostSigBits = (PSTObject.convertLittleEndianBytesToLong(bytes, offset, offset + 4) << 32)
+                    | (PSTObject.convertLittleEndianBytesToLong(bytes, offset + 4, offset + 6) << 16)
+                    | PSTObject.convertLittleEndianBytesToLong(bytes, offset + 6, offset + 8);
+            long leastSigBits = PSTObject.convertBigEndianBytesToLong(bytes, offset + 8, offset + 16);
+
+            System.out.println(Long.toHexString(mostSigBits) + " " + Long.toHexString(leastSigBits));
+            
+            return new UUID(mostSigBits, leastSigBits);
+        }
+        return null;
+    }
+
+    public String getTagRecordKeyAsHex() {
+        int guidEntryType = 0x0ff9;
+        if (this.items.containsKey(guidEntryType)) {
+            PSTTableBCItem item = this.items.get(guidEntryType);
+            int offset = 0;
+            byte[] bytes = item.data;
+            return javax.xml.bind.DatatypeConverter.printHexBinary(bytes);
+        }
+        return "";
+    }
+
+    public byte[] getStoreId(){
+        byte[] data = getBinaryItem(0x0FFA);
+        return data;
+    }
+    
+    
+    /**
+     * get the message store display name
+     */
+    public String getDisplayName() {
+        // attempt to find in the table.
+        int displayNameEntryType = 0x3001;
+        if (this.items.containsKey(displayNameEntryType)) {
+            return this.getStringItem(displayNameEntryType);
+            //PSTTableBCItem item = (PSTTableBCItem)this.items.get(displayNameEntryType);
+            //return new String(item.getStringValue());
+        }
+        return "";
+    }
 
     public String getDetails() {
         return this.items.toString();
@@ -102,15 +108,27 @@ public class PSTMessageStore extends PSTObject {
 
     /**
      * Is this pst file is password protected.
+     *
      * @throws PSTException on corrupted pst
      * @throws IOException on bad read
-     * @return - true if protected,false otherwise
-     * pstfile has the password stored against identifier 0x67FF.
-     * if there is no password the value stored is 0x00000000.
+     * @return - true if protected,false otherwise pstfile has the password
+     * stored against identifier 0x67FF. if there is no password the value
+     * stored is 0x00000000.
      */
     public boolean isPasswordProtected()
             throws PSTException, IOException {
         return (this.getLongItem(0x67FF) != 0);
     }
+    
+    public String getRootMailFolderId(){
+         int guidEntryType = 0x35e0;
+        if (this.items.containsKey(guidEntryType)) {
+            PSTTableBCItem item = this.items.get(guidEntryType);
+            byte[] bytes = item.data;
+            return javax.xml.bind.DatatypeConverter.printHexBinary(bytes);
+        }
+        return "";
+    }
+    
 
 }

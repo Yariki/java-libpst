@@ -93,7 +93,7 @@ public class TestGui implements ActionListener {
     private JPanel datePanel;
     private JLabel dateLabel;
     private JTextField dateField;
-
+    
     private PSTMessage selectedMessage;
     private JFrame f;
 
@@ -105,10 +105,14 @@ public class TestGui implements ActionListener {
         // attempt to open the pst file
         try {
 
-            String filename = "Outliyariki.ya@gmail.com-00000005.pst";//iyariki.ost
-            filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\Outliyariki.ya@gmail.com-00000005.pst";
+            String filename = "iyariki.ya@gmail.com.ost";//iyariki.ya@gmail.com.ost james_derrick_000.pst   iyariki.ya@hotmail.com.ost   archive.pst
+            filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ya@gmail.com.ost";
 
             pstFile = new PSTFile(filename);
+           
+            System.out.println(pstFile.getMessageStore().getRootMailFolderId());
+            
+            
 
         } catch (Exception err) {
             err.printStackTrace();
@@ -117,9 +121,12 @@ public class TestGui implements ActionListener {
 
         // do the tree thing
         DefaultMutableTreeNode top = new DefaultMutableTreeNode(pstFile.getMessageStore());
-        System.out.println(pstFile.getMessageStore().getTagRecordKeyAsHex());
+        
         try {
-            buildTree(top, pstFile.getRootFolder());
+            PSTFolder root = pstFile.getRootFolder();
+            PSTMessageStore store = pstFile.getMessageStore();
+            byte[] data = store.getStoreId();
+            buildTree(top, root);
         } catch (Exception err) {
             err.printStackTrace();
             System.exit(1);
@@ -156,6 +163,7 @@ public class TestGui implements ActionListener {
                     PSTFolder folderValue = (PSTFolder) node.getUserObject();
                     try {
                         selectFolder(folderValue);
+                        System.out.println(folderValue.getEntryID());
                     } catch (Exception err) {
                         System.out.println("unable to change folder");
                         err.printStackTrace();
@@ -222,12 +230,8 @@ public class TestGui implements ActionListener {
                         hexStringField.setText(indexData.getHexString());
 
                         try {
-                            indexField.setText( pstFile.getMessageStore().getTagRecordKeyAsHex() + "  "
-                                    + javax.xml.bind.DatatypeConverter.printHexBinary(selectedMessage.getDescriptorNode().dataIdentifier) + "  "
-                                    + javax.xml.bind.DatatypeConverter.printHexBinary(selectedMessage.getDescriptorNode().parentIdentifier) + "  "
-                                    + javax.xml.bind.DatatypeConverter.printHexBinary(selectedMessage.getFolder().getDescriptorNode().dataIdentifier));
-                            
-                            
+                            indexField.setText(pstFile.getMessageStore().getTagRecordKeyAsHex());
+
                             indexField.setText(selectedMessage.getEntryID());
                         } catch (PSTException ex) {
                             Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
@@ -383,6 +387,10 @@ public class TestGui implements ActionListener {
             while (childrenIterator.hasNext()) {
                 PSTFolder folder = (PSTFolder) childrenIterator.next();
 
+                if(folder.getDisplayName() == "IPM_SUBTREE"){
+                    System.out.print(top);
+                }
+                
                 DefaultMutableTreeNode node = new DefaultMutableTreeNode(folder);
 
                 if (folder.getSubFolders().size() > 0) {
@@ -437,9 +445,8 @@ public class TestGui implements ActionListener {
     void selectFolder(PSTFolder folder)
             throws IOException, PSTException {
         // load up the non-folder children.
-
+        System.out.println(folder.getObjectNodeId());
         emailTableModel.setFolder(folder);
-
     }
 
     public JMenuBar createMenu() {
