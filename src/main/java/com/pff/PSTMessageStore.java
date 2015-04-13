@@ -82,11 +82,16 @@ public class PSTMessageStore extends PSTObject {
         return "";
     }
 
-    public byte[] getStoreId(){
-        byte[] data = getBinaryItem(0x0FFA);
-        return data;
+    public String getStoreIdPart(){
+        try{
+            byte[] data = getBinaryItem(0x6615);
+        
+        return javax.xml.bind.DatatypeConverter.printHexBinary(data);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return "";
     }
-    
     
     /**
      * get the message store display name

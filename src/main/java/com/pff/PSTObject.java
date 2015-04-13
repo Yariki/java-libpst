@@ -150,18 +150,6 @@ public class PSTObject {
         return result;
     }
     
-    public String getEntryIdOst() throws PSTException, IOException{
-        long item = getLongItem(0x67F4);
-        String messagestorageId = pstFile.getMessageStore().getTagRecordKeyAsHex();
-        String partEntryId = Long.toHexString(item); 
-        String result = String.format("00000000%s%s", messagestorageId, partEntryId);
-        return result;
-    }
-    
-    public String getObjectNodeId(){
-        return getNodeId();
-    }
-    
     protected String getNodeId() {
         return this.getDescriptorNode().dataIdentifier;
     }
@@ -361,6 +349,8 @@ public class PSTObject {
                 }
 
                 //System.out.println("External reference!!!\n");
+            }else if (item.entryValueType == 0x48){
+                return item.data;
             }
         }
         return null;

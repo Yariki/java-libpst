@@ -105,8 +105,8 @@ public class TestGui implements ActionListener {
         // attempt to open the pst file
         try {
 
-            String filename = "iyariki.ya@gmail.com.ost";//iyariki.ya@gmail.com.ost james_derrick_000.pst   iyariki.ya@hotmail.com.ost   archive.pst
-            filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ya@gmail.com.ost";
+            String filename = "archive.pst";//iyariki.ya@gmail.com.ost james_derrick_000.pst   iyariki.ya@hotmail.com.ost   archive.pst
+            filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\archive.pst";
 
             pstFile = new PSTFile(filename);
            
@@ -125,7 +125,6 @@ public class TestGui implements ActionListener {
         try {
             PSTFolder root = pstFile.getRootFolder();
             PSTMessageStore store = pstFile.getMessageStore();
-            byte[] data = store.getStoreId();
             buildTree(top, root);
         } catch (Exception err) {
             err.printStackTrace();
@@ -445,7 +444,8 @@ public class TestGui implements ActionListener {
     void selectFolder(PSTFolder folder)
             throws IOException, PSTException {
         // load up the non-folder children.
-        System.out.println(folder.getObjectNodeId());
+        System.out.println(folder.getEntryID());
+        
         emailTableModel.setFolder(folder);
     }
 
