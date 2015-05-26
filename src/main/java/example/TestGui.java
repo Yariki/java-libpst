@@ -16,6 +16,7 @@ import com.pff.PSTMessageStore;
 import com.pff.PSTRecipient;
 import com.pff.PSTRss;
 import com.pff.PSTTask;
+import com.pff.PSTTransportRecipient;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -30,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -105,8 +107,8 @@ public class TestGui implements ActionListener {
         // attempt to open the pst file
         try {
 
-            String filename = "archive.pst";//iyariki.ya@gmail.com.ost james_derrick_000.pst   iyariki.ya@hotmail.com.ost   archive.pst
-            filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\archive.pst";
+            String filename = "iyariki.ya@hotmail.com.ost";//iyariki.ya@gmail.com.ost james_derrick_000.pst   iyariki.ya@hotmail.com.ost   archive.pst
+            filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ya@hotmail.com.ost";// "f:\\Visual\\Work\\vincent@metajure.com.ost";//
 
             pstFile = new PSTFile(filename);
            
@@ -201,6 +203,8 @@ public class TestGui implements ActionListener {
 
                     } else if (selectedMessage != null) {
 //						System.out.println(selectedMessage.getMessageClass());
+                        
+                        
                         String body = selectedMessage.getBody();
                         if (body.isEmpty()) {
                             body = selectedMessage.getBodyHTML();
@@ -257,22 +261,49 @@ public class TestGui implements ActionListener {
 //                                                
 //                                                temp = selectedMessage.getRcvdRepresentingName();
 //                                                System.out.println("Rcvd: " + temp);
+                        String transportMessageHeaders = selectedMessage.getTransportMessageHeaders();
+                        System.out.println(transportMessageHeaders);
                         int count = 0;
-                        try {
-                            count = selectedMessage.getNumberOfRecipients();
-
-                            for (int i = 0; i < count; i++) {
-                                PSTRecipient recipient = selectedMessage.getRecipient(i);
-                                if (recipient != null) {
-                                    System.out.println("Recipient: " + recipient.getDisplayName() + " Flags: " + Integer.toString(recipient.getRecipientType())
-                                            + " Email: " + recipient.getEmailAddress() + "Email type: " + recipient.getEmailAddressType());
+                        //try {
+//                            count = selectedMessage.getNumberOfRecipients();
+//
+//                            for (int i = 0; i < count; i++) {
+//                                PSTRecipient recipient = selectedMessage.getRecipient(i);
+//                                if (recipient != null) {
+//                                    System.out.println("Recipient: " + recipient.getDisplayName() + " Flags: " + Integer.toString(recipient.getRecipientType())
+//                                            + " Email: " + recipient.getEmailAddress() +" - "+ recipient.getSmtpAddress() + " Email type: " + recipient.getEmailAddressType());
+//                                }
+//                            }
+                            System.out.println("-----FROM-----");
+                            PSTTransportRecipient rec = selectedMessage.getFrom();
+                            if(rec != null){
+                                System.out.println(rec.getName() +" > "+ rec.getEmailAddress());
+                            }else{
+                                
+                            }
+                            System.out.println("-----TO-----");
+                            List<PSTTransportRecipient> results = selectedMessage.getTo();
+                            if(results != null){
+                                for(PSTTransportRecipient r : results){
+                                    System.out.println(r.getName() +" > "+ r.getEmailAddress());
+                                }
+                                results = null;
+                            }
+                            System.out.println("-----CC-----");
+                            results = selectedMessage.getCc();
+                            if(results != null){
+                                for(PSTTransportRecipient r : results){
+                                    System.out.println(r.getName() +" > "+ r.getEmailAddress());
                                 }
                             }
-                        } catch (PSTException ex) {
-                            Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (IOException ex) {
-                            Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                            
+                            
+                            
+//                        } catch (PSTException ex) {
+//                            Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
+//                        } catch (IOException ex) {
+//                            Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
 //                                                
 //                                                try{
 //                                                    int size = selectedMessage.getNumberOfAttachments();

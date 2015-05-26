@@ -33,9 +33,23 @@
  */
 package com.pff;
 
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import org.apache.commons.mail.*;
+import org.apache.commons.mail.util.*;
+
 
 /**
  * PST Message contains functions that are common across most MAPI objects. Note
@@ -1090,5 +1104,132 @@ public class PSTMessage extends PSTObject {
                 + this.items
                 + this.localDescriptorItems;
     }
+    
+    
+
+    private static String namePattern = "(?s)(?<NAME>.*)<";
+    private static String emailPattern = "<(?<EMAIL>.*)>";
+    
+    private static Pattern namePat = Pattern.compile(namePattern);
+    private static Pattern emailPat = Pattern.compile(emailPattern);
+    
+    
+    
+    public PSTTransportRecipient getFrom() {
+        String transportHeaders = getTransportMessageHeaders();
+        try{
+            MimeMessage message = MimeMessageUtils.createMimeMessage(null, transportHeaders);
+            String[] fromHeader = message.getHeader("From");
+            if(fromHeader !=  null && fromHeader.length > 0){
+                return getValueFromPartOfTransport(fromHeader[0].toString());
+            }
+        }catch(IOException io){
+            Logger.getGlobal().log(Level.SEVERE, io.getMessage());
+        }catch(Exception e){
+            Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+        }
+        return null;
+    }
+    
+    public List<PSTTransportRecipient> getTo(){
+       String transportHeaders = getTransportMessageHeaders();
+        try{
+            MimeMessage message = MimeMessageUtils.createMimeMessage(null, transportHeaders);
+            String[] toHeader = message.getHeader("To");
+            List<PSTTransportRecipient>  result = getRecipient(toHeader);
+            return result;
+        }catch(IOException io){
+            Logger.getGlobal().log(Level.SEVERE, io.getMessage());
+        }catch(Exception e){
+            Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+        }
+        return null;
+    }
+    
+    public List<PSTTransportRecipient> getCc(){
+       String transportHeaders = getTransportMessageHeaders();
+        
+        try{
+            MimeMessage message = MimeMessageUtils.createMimeMessage(null, transportHeaders);
+            String[] ccHeaders = message.getHeader("CC");
+            List<PSTTransportRecipient>  result = getRecipient(ccHeaders);
+            return result;
+        }catch(IOException io){
+            Logger.getGlobal().log(Level.SEVERE, io.getMessage());
+        }catch(Exception e){
+            Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+        }
+        return null;
+    }
+    
+    public List<PSTTransportRecipient> getBcc(){
+       String transportHeaders = getTransportMessageHeaders();
+      
+        try{
+            MimeMessage message = MimeMessageUtils.createMimeMessage(null, transportHeaders);
+            String[] bccHeaders = message.getHeader("BCC");
+            List<PSTTransportRecipient>  result = getRecipient(bccHeaders);
+            return result;
+        }catch(IOException io){
+            Logger.getGlobal().log(Level.SEVERE, io.getMessage());
+        }catch(Exception e){
+            Logger.getGlobal().log(Level.SEVERE, e.getMessage());
+        }
+        return null;
+    }
+    
+    private static List<PSTTransportRecipient>  getRecipient(String[] recipientsHeader) {
+        if(recipientsHeader == null || recipientsHeader.length == 0){
+            return null;
+        }
+        String value = recipientsHeader[0];
+        if(value == null || value.isEmpty()){
+            return  null;
+        }
+        List<PSTTransportRecipient>  result = new ArrayList<PSTTransportRecipient>();
+        String[] recipients = value.split(",");
+        if(recipients != null){
+            for(String a:recipients){
+                PSTTransportRecipient r = getValueFromPartOfTransport(a.replace("\r", "").replace("\n","").toString());
+                if(r != null){
+                    result.add(r);    
+                }
+            }
+            return result;
+        }
+        return null;
+    }
+    
+    private static PSTTransportRecipient getValueFromPartOfTransport(String part){
+        Matcher name = namePat.matcher(part);
+        String email = getEmail(part);
+        if(name.find() && !email.isEmpty()){
+            return new PSTTransportRecipient(name.group("NAME").trim(), email);
+        }else if (isEmail(part)){
+            return new PSTTransportRecipient("",part.trim());
+        }else if(part.length() > 0){
+            return new PSTTransportRecipient(part.trim(),"");
+        }
+        return null;
+    }
+    
+    private static boolean isEmail(String str){
+        String regex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        Pattern pattern = Pattern.compile(regex);
+        return pattern.matcher(str).lookingAt();
+    }
+    
+    private static String getEmail(String part){
+        final String begin = "<";
+        final String end = ">";
+        
+        int first = part.indexOf(begin);
+        int second = part.indexOf(end);
+        if(first > -1 && second > -1){
+            return part.substring(first+1, second);
+        } 
+        return "";
+    }
+    
 
 }
