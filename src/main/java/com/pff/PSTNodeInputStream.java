@@ -48,18 +48,20 @@ import java.nio.file.Paths;
  */
 public class PSTNodeInputStream extends InputStream {
 
-    private RandomAccessFile in;
+    protected RandomAccessFile in;
     private PSTFile pstFile;
     private LinkedList<Long> skipPoints = new LinkedList<Long>();
-    private LinkedList<OffsetIndexItem> indexItems = new LinkedList<OffsetIndexItem>();
-    private int currentBlock = 0;
-    private long currentLocation = 0;
+    protected LinkedList<OffsetIndexItem> indexItems = new LinkedList<OffsetIndexItem>();
+    protected int currentBlock = 0;
+    protected long currentLocation = 0;
 
-    private byte[] allData = null;
+    protected byte[] allData = null;
 
-    private long length = 0;
+    protected byte[] inData = null;
 
-    private boolean encrypted = false;
+    protected long length = 0;
+
+    protected boolean encrypted = false;
 
     PSTNodeInputStream(PSTFile pstFile, byte[] attachmentData)
             throws PSTException {
@@ -107,9 +109,9 @@ public class PSTNodeInputStream extends InputStream {
         this.detectZlib();
     }
 
-    private boolean isZlib = false;
+    protected boolean isZlib = false;
 
-    private void detectZlib()
+    protected void detectZlib()
             throws PSTException {
         // not really sure how this is meant to work, kind of going by feel here.
         if (this.length < 4) {
@@ -140,15 +142,20 @@ public class PSTNodeInputStream extends InputStream {
                 inflaterStream.write(inData);
                 inflaterStream.close();
                 outputStream.close();
+
                 byte[] output = outputStream.toByteArray();
                 this.allData = output;
+                this.inData = inData;
                 this.currentLocation = 0;
                 this.currentBlock = 0;
                 this.length = this.allData.length;
+                isZlib = true;
             }
             this.seek(0);
         } catch (IOException err) {
             throw new PSTException("Unable to compress reportedly compressed block", err);
+        } catch (Exception ex) {
+            throw new PSTException("Unable to compress reportedly compressed block", ex);
         }
     }
 
@@ -184,6 +191,10 @@ public class PSTNodeInputStream extends InputStream {
         this.allData = data;
         this.length = this.allData.length;
 
+    }
+
+    public byte[] getInputData() {
+        return this.inData;
     }
 
     public boolean isEncrypted() {
@@ -370,6 +381,7 @@ public class PSTNodeInputStream extends InputStream {
             }
             totalLoopCount++;
         }
+
 
         // decode the array if required
         if (this.encrypted) {

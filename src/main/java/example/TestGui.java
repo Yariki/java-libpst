@@ -36,24 +36,7 @@ import java.util.UUID;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -69,6 +52,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 public class TestGui implements ActionListener {
 
     private PSTFile pstFile;
+    private PSTFolder currentFolder;
+
     private EmailTableModel emailTableModel;
     private JTextPane emailText;
     private JPanel emailPanel;
@@ -95,6 +80,11 @@ public class TestGui implements ActionListener {
     private JPanel datePanel;
     private JLabel dateLabel;
     private JTextField dateField;
+
+    private JPanel searchPanel;
+    private JLabel searchLabel;
+    private JTextField searchField;
+    private JButton searchButton;
     
     private PSTMessage selectedMessage;
     private JFrame f;
@@ -107,8 +97,8 @@ public class TestGui implements ActionListener {
         // attempt to open the pst file
         try {
 
-            String filename = "iyariki.ya@hotmail.com.ost";//iyariki.ya@gmail.com.ost james_derrick_000.pst   iyariki.ya@hotmail.com.ost   archive.pst
-            filename = "c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ya@hotmail.com.ost";// "f:\\Visual\\Work\\vincent@metajure.com.ost";//
+            String filename = "vincent@metajure.com.ost";//iyariki.ya@gmail.com.ost james_derrick_000.pst   iyariki.ya@hotmail.com.ost   archive.pst
+            filename = "f:\\Visual\\Work\\vincent@metajure.com.ost";//"c:\\Users\\Yariki\\AppData\\Local\\Microsoft\\Outlook\\iyariki.ya@hotmail.com.ost";//  vpayette@hotmail.com.ost  vincent@metajure.com.ost
 
             pstFile = new PSTFile(filename);
            
@@ -163,6 +153,7 @@ public class TestGui implements ActionListener {
                 if (node.getUserObject() instanceof PSTFolder) {
                     PSTFolder folderValue = (PSTFolder) node.getUserObject();
                     try {
+                        currentFolder = folderValue;
                         selectFolder(folderValue);
                         System.out.println(folderValue.getEntryID());
                     } catch (Exception err) {
@@ -241,6 +232,8 @@ public class TestGui implements ActionListener {
                         } catch (IOException ex) {
                             Logger.getLogger(TestGui.class.getName()).log(Level.SEVERE, null, ex);
                         }
+                        String internetName = selectedMessage.getInternetName();
+                        System.out.println("Internet  Name: " + internetName);
 
                         //System.out.println(selectedMessage.getDescriptorNodeId());
 //                                                String temp = selectedMessage.getSentRepresentingName();
@@ -385,6 +378,45 @@ public class TestGui implements ActionListener {
         indexPanel.add(indexLabel, BorderLayout.WEST);
         indexPanel.add(indexField, BorderLayout.CENTER);
         stack.add(indexPanel);
+
+        searchPanel = new JPanel(new BorderLayout());
+        searchLabel = new JLabel("Search:");
+        searchField = new JTextField();
+        searchButton = new JButton();
+        searchButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(currentFolder == null){
+                    return;
+                }
+
+                PSTMessage message = null;
+                try {
+                    message = (PSTMessage)currentFolder.getNextChild();
+                } catch (PSTException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                while(message != null){
+                    try{
+
+                        String subject = message.getSubject();
+                        if(subject.toLowerCase().contains(searchField.getText().toLowerCase())){
+                            System.out.println("!!!!! Subject => " + message.getSubject());
+                        }
+                        message = (PSTMessage)currentFolder.getNextChild();
+                    }catch (Exception ex){
+                        System.out.println(ex.getMessage());
+                        message =  null;
+                    }
+                }
+            }
+        });
+        searchPanel.add(searchLabel, BorderLayout.WEST);
+        searchPanel.add(searchField,BorderLayout.CENTER);
+        searchPanel.add(searchButton,BorderLayout.EAST);
+        stack.add(searchPanel);
+
 
         emailPanel.add(stack, BorderLayout.NORTH);
         emailPanel.add(emailText, BorderLayout.CENTER);

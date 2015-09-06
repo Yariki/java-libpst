@@ -838,6 +838,10 @@ public class PSTMessage extends PSTObject {
     public boolean getConversationIndexTracking() {
         return this.getBooleanItem(0x3016);
     }
+    
+    public String getInternetName(){
+        return this.getStringItem(0x800A);
+    }
 
     private PSTTable7C recipientTable = null;
 
@@ -1109,11 +1113,26 @@ public class PSTMessage extends PSTObject {
 
     private static String namePattern = "(?s)(?<NAME>.*)<";
     private static String emailPattern = "<(?<EMAIL>.*)>";
-    
+    private static String messageId = "Message-ID";
     private static Pattern namePat = Pattern.compile(namePattern);
     private static Pattern emailPat = Pattern.compile(emailPattern);
+
     
-    
+    public String getTransportMessageId(){
+        String transportHeaders = getTransportMessageHeaders();
+        try{
+            MimeMessage message = MimeMessageUtils.createMimeMessage(null,transportHeaders);
+            String[] ids = message.getHeader(messageId);
+            if(ids != null && ids.length > 0){
+                return ids[0];
+            }
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
     
     public PSTTransportRecipient getFrom() {
         String transportHeaders = getTransportMessageHeaders();
@@ -1130,7 +1149,7 @@ public class PSTMessage extends PSTObject {
         }
         return null;
     }
-    
+
     public List<PSTTransportRecipient> getTo(){
        String transportHeaders = getTransportMessageHeaders();
         try{
