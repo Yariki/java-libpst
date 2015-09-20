@@ -1,6 +1,6 @@
 package com.pff;
 
-import com.sun.deploy.util.SystemUtils;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
@@ -46,11 +48,13 @@ public class PSTNodeAttachmentInputStream extends PSTNodeInputStream {
                 // and replace our contents with that.
                 // firstly, if we have blocks, use that as the length
                 int uncompressedLength = (int) this.length;
-                if (this.indexItems.size() > 0) {
+                if (this.indexItems != null && this.indexItems.size() > 0) {
                     uncompressedLength = 0;
                     for (OffsetIndexItem i : this.indexItems) {
                         uncompressedLength += i.size;
                     }
+                }else if(this.indexItems == null){
+                    Logger.getGlobal().log(Level.SEVERE,"indexItems == null");
                 }
                 byte[] inData = new byte[uncompressedLength]; // TODO: make this stream correctly.
                 this.seek(0);
